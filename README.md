@@ -12,7 +12,7 @@ Un servicio reactivo y ligero en Python para Windows que te ayuda a prevenir la 
 * Python 3.x
 
 ## 🛠️ Instalación y Uso
-1. Clona este repositorio: `git clone https://github.com/tu-usuario/20-20-20-eye-monitor.git`
+1. Clona este repositorio: `git clone https://github.com/LeonardoByte/20-20-20-eye-monitor.git`
 2. Crea un entorno virtual: `python -m venv .venv`
 3. Activa el entorno e instala las dependencias: `pip install -r requirements.txt`
 4. Ejecuta el script o usa el archivo `.bat` provisto para añadirlo al inicio automático de Windows.
