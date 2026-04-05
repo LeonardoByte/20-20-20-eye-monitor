@@ -30,6 +30,7 @@ PBT_APMRESUMEAUTOMATIC = 0x0012  # Código de evento: equipo reanuda automática
 
 # App timing constants
 ALERT_EVERY_SECONDS = 20 * 60  # 1200 segundos = 20 minutos, intervalo para mostrar alerta
+INACTIVE_RESET_SECONDS = 5 * 60  # 300 segundos = 5 minutos de descanso real para resetear
 UI_TIMER_INTERVAL_MS = 1000  # 1000 milisegundos = 1 segundo, frecuencia del timer de actualización
 
 VISUAL_MESSAGE = "¡Aplica la regla 20-20-20! Mira a 6 metros durante 20 segundos."  # Texto de notificación visual
@@ -43,6 +44,7 @@ class EyeMonitorService:
         self._is_active = True  # Flag que indica si el tiempo debe contarse (True) o está pausado (False)
         self._last_active_start = time.monotonic()  # Marca temporal del inicio del tramo activo actual
         self._active_accumulated_seconds = 0.0  # Total de segundos de uso activo acumulados en este ciclo
+        self._last_inactive_start = 0.0  # Marca temporal del inicio del último tramo inactivo (para resetear si es suficientemente largo)
 
     # Crea y configura una ventana oculta de Windows, establece timers y entra en el bucle de mensajes del sistema
     def run(self) -> None:
@@ -88,11 +90,18 @@ class EyeMonitorService:
         # Si estaba activo y ahora se vuelve inactivo, guarda el tiempo transcurrido
         if self._is_active and not active:
             self._active_accumulated_seconds += now - self._last_active_start
+            self._last_inactive_start = now
             self._is_active = False
             return
 
         # Si estaba inactivo y ahora se vuelve activo, reinicia el contador de tiempo
         if (not self._is_active) and active:
+            inactive_duration = now - self._last_inactive_start
+
+            # Si el período de inactividad fue suficientemente largo, resetea el contador acumulado a cero
+            if inactive_duration >= INACTIVE_RESET_SECONDS:
+                self._active_accumulated_seconds = 0.0
+
             self._last_active_start = now
             self._is_active = True
 
